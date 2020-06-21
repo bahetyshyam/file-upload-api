@@ -1,0 +1,25 @@
+{
+  "name": "file-upload-api",
+  "version": "1.0.0",
+  "description": "An api which handles file uploads",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --exec babel-node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shyam Bahety",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.19",
+    "multer": "^1.4.2",
+    "multer-gridfs-storage": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.3",
+    "@babel/node": "^7.10.3",
+    "@babel/preset-env": "^7.10.3",
+    "nodemon": "^2.0.4"
+  }
+}
