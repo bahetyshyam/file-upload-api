@@ -1,10 +1,11 @@
 import express from "express";
 import bodyParser from "body-parser";
 import "dotenv/config";
-import cors from "cors";
+var cors = require("cors");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const GridFsStorage = require("multer-gridfs-storage");
+import compare from "./compareFunction";
 
 const app = express();
 const port = 8080;
@@ -15,7 +16,11 @@ app.use(
     extended: true,
   })
 );
-app.use(cors());
+app.use(
+  cors({
+    exposedHeaders: ["Content-Disposition"],
+  })
+);
 
 // connection
 const conn = mongoose.createConnection(process.env.MONGO_URI, {
@@ -56,16 +61,12 @@ const storage = new GridFsStorage({
 const upload = multer({
   storage,
   onError: (err, next) => {
-    console.log("error", err);
     next(err);
   },
 });
 
 app.post("/upload", upload.single("file"), (req, res) => {
-  //   if (err) {
-  //     res.send(err);
-  //   }
-  res.json({
+  return res.json({
     success: "true",
     file: req.file,
   });
@@ -76,11 +77,11 @@ app.get("/files", (req, res) => {
   gfs.find().toArray((err, files) => {
     // check if files
     if (!files || files.length === 0) {
-      return res.status(404).json({
-        success: false,
-        err: "No files exist",
-      });
+      files = [];
+      return res.json(files);
     }
+
+    files.sort(compare);
 
     return res.json(files);
   });
@@ -96,6 +97,11 @@ app.get("/files/:id", (req, res) => {
           err: "no files exist",
         });
       }
+      res.setHeader("Content-Type", files[0].contentType);
+      res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=" + files[0].filename
+      );
       res.header("Content-Type", files[0].contentType);
       gfs.openDownloadStream(files[0]._id).pipe(res);
     });
